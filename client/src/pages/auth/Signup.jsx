@@ -4,56 +4,148 @@ import InputField from "../../components/InputField";
 import Loader from "../../components/Loader";
 import {
   createUserWithEmailAndPassword,
-  getAuth,
   sendEmailVerification,
   updateProfile,
 } from "firebase/auth";
-import { auth } from "../../utils";
-// complete the form validation
-// 1. password contains char, digit, capital, small, 8 to 15 char
-// 2. username - unique, required
-// 3. email - should be good, required
-// 4. name - required, contains at least 2 character and at most 20 characters
+import { auth, db } from "../../utils";
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  where,
+} from "firebase/firestore";
+
 const Signup = () => {
-  const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [errors, setErrors] = useState({});
 
-  // const checkPass = (password) => {
-  //   setError(null);
-  //   console.log("checking password");
-  //   if (password.length < 8 || password.length > 15) {
-  //     setError("Password should at least 8 and at most 15 characters");
-  //     return;
-  //   }
-  //   var express =
-  //     /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,15}$/;
-  //   if (!password.match(express))
-  //     setError(
-  //       "password should contain atleast one uppercase, one lowercase, one digit"
-  //     );
-  // };
+  const validateDisplayName = (displayName) => {
+    if (displayName === "") {
+      setErrors((prev) => {
+        return { ...prev, ["displayName"]: "Displayname can't be empty" };
+      });
+      return 0;
+    }
+    const regex = /^[a-zA-Z\s]*$/; // contains only alphabet
+    if (!regex.test(displayName)) {
+      setErrors((prev) => {
+        return {
+          ...prev,
+          ["displayName"]: "Only alphabet and space is allowed",
+        };
+      });
 
+      return 0;
+    }
+    return 1;
+  };
+
+  const validateUsername = async (username) => {
+    if (username === "") {
+      setErrors((prev) => {
+        return { ...prev, ["username"]: "username can't be empty" };
+      });
+      return 0;
+    }
+
+    const regex = /^[a-zA-Z0-9_.]*$/;
+    if (!regex.test(username)) {
+      setErrors((prev) => {
+        return {
+          ...prev,
+          ["username"]: "username should contain only a-z,A-Z,0-9, _ and .",
+        };
+      });
+      return 0;
+    }
+    const q = query(collection(db, "users"), where("username", "==", username));
+
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      setErrors((prev) => {
+        return { ...prev, ["username"]: "username must be unqiue" };
+      });
+      return 0;
+    }
+    return 1;
+  };
+
+  const validatePassword = (password) => {
+    if (password.length < 6 || password.length > 15) {
+      setErrors((prev) => {
+        return {
+          ...prev,
+          ["password"]: "Password should at least 8 and at most 15 characters",
+        };
+      });
+      return 0;
+    }
+    var express =
+      /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{6,15}$/;
+    if (!password.match(express)) {
+      setErrors((prev) => {
+        return {
+          ...prev,
+          ["password"]:
+            "password should contain atleast one uppercase, one lowercase, one digit and one character",
+        };
+      });
+      return 0;
+    }
+    return 1;
+  };
+  const validateUserData = async (displayName, username, email, password) => {
+    if (!validateDisplayName(displayName)) return 0;
+    if (!(await validateUsername(username))) return 0;
+
+    if (!validatePassword(password)) return 0;
+    return 1;
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setErrors({});
     const displayName = e.target[0].value;
-    const uid = e.target[1].value;
+    const username = e.target[1].value;
     const email = e.target[2].value;
     const password = e.target[3].value;
 
-    setFormData({ displayName, uid, email, password });
+    // const temp = await
+    if (!(await validateUserData(displayName, username, email, password))) {
+      setLoading(false);
+      return;
+    }
+    const photoURL =
+      "https://firebasestorage.googleapis.com/v0/b/connectify-57b87.appspot.com/o/user-profile-icon-flat-style-member-avatar-vector-illustration-isolated-background-human-permission-sign-business-concept_157943-15752.jpg.avif?alt=media&token=35b44b2e-812b-40aa-bcd8-b836a038328b";
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password);
       const user = res?.user;
-      console.log(user);
-      updateProfile(user, {
+      await updateProfile(user, {
         displayName,
-        photoURL:
-          "https://firebasestorage.googleapis.com/v0/b/connectify-57b87.appspot.com/o/user-profile-icon-flat-style-member-avatar-vector-illustration-isolated-background-human-permission-sign-business-concept_157943-15752.jpg.avif?alt=media&token=35b44b2e-812b-40aa-bcd8-b836a038328b",
+        photoURL,
       });
-
+      try {
+        const docRef = await setDoc(doc(db, "users", user.uid), {
+          uid: user.uid,
+          displayName,
+          username,
+          email,
+          bio: "",
+          photoURL,
+          followers: [], // uid of other users this current user follow
+          following: [], // uid of other users who follow this account
+          likedPost: [], // post liked by this user
+          savedPost: [], // post saved by this user
+        });
+        console.log("docRef", docRef);
+      } catch (e) {
+        console.error("Error setting document: ", e);
+      }
       setLoading(false);
     } catch (error) {
       setError(error.message);
@@ -61,7 +153,7 @@ const Signup = () => {
       console.log(error.message);
     }
   };
-
+  console.log(errors["displayName"]);
   return (
     <form
       className="flex flex-col gap-1 w-[100%] max-w-[400px] text-white px-4"
@@ -74,10 +166,25 @@ const Signup = () => {
         To use connectify, please enter your details
       </p>
 
-      <InputField id={"name"} label={"Name"} type={"text"} />
-      <InputField id={"username"} label={"Username"} type={"text"} />
+      <InputField
+        id={"name"}
+        label={"Name"}
+        type={"text"}
+        error={errors["displayName"]}
+      />
+      <InputField
+        id={"username"}
+        label={"Username"}
+        type={"text"}
+        error={errors["username"]}
+      />
       <InputField id={"email"} label={"Email"} type={"email"} />
-      <InputField id={"password"} label={"Password"} type={"password"} />
+      <InputField
+        id={"password"}
+        label={"Password"}
+        type={"password"}
+        error={errors["password"]}
+      />
 
       <button className="w-full py-3 text-white rounded-md bg-[#887ef7] my-3">
         {loading ? <Loader /> : "Sign up"}

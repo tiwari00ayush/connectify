@@ -2,12 +2,12 @@ import React from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import sideImg from "../../assets/images/side-img.svg";
 import logo from "/logo.png";
+import { useAuth } from "../../context/AuthContext";
 const AuthLayout = () => {
-  const isAuthenticated = false;
-
+  const { currentUser } = useAuth();
   return (
     <div>
-      {isAuthenticated ? (
+      {currentUser ? (
         <Navigate to={"/"} />
       ) : (
         <div className="w-full h-screen flex">

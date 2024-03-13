@@ -1,11 +1,20 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import SideBar from "../components/SideBar";
 const RootLayout = () => {
+  const { currentUser } = useAuth();
   return (
-    <div>
-      <h1>Welcome to root</h1>
-      <Outlet />
-    </div>
+    <>
+      {currentUser ? (
+        <div className="flex">
+          <SideBar />
+          <Outlet />
+        </div>
+      ) : (
+        <Navigate to={"/login"} />
+      )}
+    </>
   );
 };
 

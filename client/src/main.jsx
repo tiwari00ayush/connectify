@@ -7,12 +7,25 @@ import {
   RouterProvider,
   Route,
 } from "react-router-dom";
-import { Home, Login, Signup, AuthLayout, RootLayout } from "./pages";
+import {
+  Home,
+  Login,
+  Signup,
+  AuthLayout,
+  RootLayout,
+  Explore,
+  CreatePost,
+  Profile,
+} from "./pages";
+import { AuthContextProvider } from "./context/AuthContext";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/">
       <Route element={<RootLayout />}>
         <Route path="" element={<Home />} />
+        <Route path="explore" element={<Explore />} />
+        <Route path="createPost" element={<CreatePost />} />
+        <Route path="profile/:uid" element={<Profile />} />
       </Route>
       <Route element={<AuthLayout />}>
         <Route path="login" element={<Login />} />
@@ -23,6 +36,8 @@ const router = createBrowserRouter(
 );
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <AuthContextProvider>
+      <RouterProvider router={router} />
+    </AuthContextProvider>
   </React.StrictMode>
 );
