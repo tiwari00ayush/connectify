@@ -27,7 +27,9 @@ const HomeFeed = () => {
           console.log(error);
         }
       }
-
+      postArr.sort(function (a, b) {
+        return a.timestamp < b.timestamp;
+      });
       setAllPost(postArr);
     };
     getAllPost();
