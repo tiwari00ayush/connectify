@@ -16,6 +16,9 @@ import {
   Explore,
   CreatePost,
   Profile,
+  EditProfile,
+  SavedPost,
+  People,
 } from "./pages";
 import { AuthContextProvider } from "./context/AuthContext";
 const router = createBrowserRouter(
@@ -25,7 +28,10 @@ const router = createBrowserRouter(
         <Route path="" element={<Home />} />
         <Route path="explore" element={<Explore />} />
         <Route path="createPost" element={<CreatePost />} />
+        <Route path="saved" element={<SavedPost />} />
         <Route path="profile/:uid" element={<Profile />} />
+        <Route path="editProfile" element={<EditProfile />} />
+        <Route path="people" element={<People />} />
       </Route>
       <Route element={<AuthLayout />}>
         <Route path="login" element={<Login />} />

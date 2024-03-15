@@ -121,7 +121,7 @@ const Signup = () => {
       return;
     }
     const photoURL =
-      "https://firebasestorage.googleapis.com/v0/b/connectify-57b87.appspot.com/o/user-profile-icon-flat-style-member-avatar-vector-illustration-isolated-background-human-permission-sign-business-concept_157943-15752.jpg.avif?alt=media&token=35b44b2e-812b-40aa-bcd8-b836a038328b";
+      "https://firebasestorage.googleapis.com/v0/b/connectify-57b87.appspot.com/o/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3383.jpg.avif?alt=media&token=0b8a66a9-524f-40b3-9b7b-2306b285b196";
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password);
       const user = res?.user;
@@ -138,11 +138,14 @@ const Signup = () => {
           bio: "",
           photoURL,
           followers: [], // uid of other users this current user follow
-          following: [], // uid of other users who follow this account
+          following: [user.uid], // uid of other users who follow this account
           likedPost: [], // post liked by this user
           savedPost: [], // post saved by this user
         });
         console.log("docRef", docRef);
+        sendEmailVerification(auth.currentUser).then(() => {
+          console.log("email verification sent");
+        });
       } catch (e) {
         console.error("Error setting document: ", e);
       }

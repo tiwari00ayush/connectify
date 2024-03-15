@@ -6,6 +6,8 @@ import { FaRegBookmark } from "react-icons/fa";
 import { db } from "../utils";
 import { doc, getDoc } from "firebase/firestore";
 import { Link } from "react-router-dom";
+import Like from "./Like";
+import Save from "./Save";
 const HomePost = ({ post }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isBookMarked, setIsBookMarked] = useState(false);
@@ -17,7 +19,6 @@ const HomePost = ({ post }) => {
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        console.log("Document data:", docSnap.data());
         setOwner(docSnap.data());
       } else {
         // docSnap.data() will be undefined in this case
@@ -55,32 +56,11 @@ const HomePost = ({ post }) => {
       </div>
       <img src={post?.fileUrl} alt="post photo" className="rounded-md my-2" />
       <div className="flex justify-between items-center">
-        {isLiked ? (
-          <IoMdHeart
-            style={{ fontSize: "1.5rem", cursor: "pointer", color: "#f1566a" }}
-            onClick={() => setIsLiked(false)}
-          />
-        ) : (
-          <IoIosHeartEmpty
-            style={{
-              fontSize: "1.5rem",
-              cursor: "pointer",
-              color: "#f1566a",
-            }}
-            onClick={() => setIsLiked(true)}
-          />
-        )}
-        {isBookMarked ? (
-          <FaBookmark
-            style={{ fontSize: "1.5rem", cursor: "pointer" }}
-            onClick={() => setIsBookMarked(false)}
-          />
-        ) : (
-          <FaRegBookmark
-            style={{ fontSize: "1.5rem", cursor: "pointer" }}
-            onClick={() => setIsBookMarked(true)}
-          />
-        )}
+        <div className="flex items-center gap-2">
+          <Like postId={post.id} />
+          {post.likeBy.length}
+        </div>
+        <Save postId={post.id} />
       </div>
     </div>
   );

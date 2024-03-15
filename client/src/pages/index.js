@@ -6,6 +6,9 @@ import RootLayout from "./RootLayout";
 import Explore from "./root/Explore";
 import CreatePost from "./root/CreatePost";
 import Profile from "./root/Profile";
+import EditProfile from "./root/EditProfile";
+import SavedPost from "./root/SavedPost";
+import People from "./root/People";
 export {
   Home,
   Login,
@@ -15,4 +18,7 @@ export {
   Explore,
   CreatePost,
   Profile,
+  EditProfile,
+  SavedPost,
+  People,
 };

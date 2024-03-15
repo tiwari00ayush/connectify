@@ -7,46 +7,69 @@ import {
   doc,
   getDoc,
   getDocs,
+  onSnapshot,
   query,
   where,
 } from "firebase/firestore";
 import { db } from "../../utils";
 import PostCard from "../../components/PostCard";
-import { useParams } from "react-router-dom";
+import Follow from "../../components/Follow";
+import { Link, useParams } from "react-router-dom";
 const Profile = () => {
-  const [currentUser, setCurrentUser] = useState(null);
+  const { currentUser } = useAuth();
+  const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [likedPosts, setLikedPosts] = useState([]);
+  const [showPost, setshowPost] = useState(true);
+  const [showFollowers, setShowFollowers] = useState(false);
+  const [showFollowing, setShowFollwing] = useState(false);
   const { uid } = useParams();
-  console.log(uid);
   useEffect(() => {
-    const getCurrentUser = async () => {
-      const docRef = doc(db, "users", uid);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        console.log("Document data:", docSnap.data());
-        setCurrentUser(docSnap.data());
-      } else {
-        // docSnap.data() will be undefined in this case
-        console.log("No such user exist!");
-      }
+    const getuser = async () => {
+      const unsub = onSnapshot(doc(db, "users", uid), (doc) => {
+        setUser(doc.data());
+        return () => {
+          unsub();
+        };
+      });
     };
-    getCurrentUser();
+    getuser();
   }, [uid]);
+  const LikedPostId = currentUser.likedPost;
+  useEffect(() => {
+    const getLikedPost = async () => {
+      console.log(LikedPostId);
+      const LikedPostArr = [];
+      for (let i = 0; i < LikedPostId.length; i++) {
+        const postId = LikedPostId[i];
+        try {
+          const docRef = doc(db, "posts", postId);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            console.log("Document data:", docSnap.data());
+            LikedPostArr.push({ ["id"]: docSnap.id, ...docSnap.data() });
+          } else {
+            // docSnap.data() will be undefined in this case
+            console.log("No such document!");
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+
+      setLikedPosts(LikedPostArr);
+    };
+    getLikedPost();
+  }, [LikedPostId]);
   useEffect(() => {
     const getPost = async () => {
-      const q = query(
-        collection(db, "posts"),
-        where("owner", "==", currentUser?.uid)
-      );
+      const q = query(collection(db, "posts"), where("owner", "==", user?.uid));
 
       const querySnapshot = await getDocs(q);
       if (querySnapshot.empty) console.log("empty");
       let postArr = [];
       querySnapshot.forEach((doc) => {
-        // doc.data() is never undefined for query doc snapshots
-
-        postArr.push(doc.data());
+        postArr.push({ ["id"]: doc.id, ...doc.data() });
       });
       postArr.sort(function (a, b) {
         return a.timestamp > b.timestamp;
@@ -54,36 +77,34 @@ const Profile = () => {
       setPosts(postArr);
     };
     getPost();
-  }, [currentUser]);
-  console.log(posts);
+  }, [user]);
+  console.log(likedPosts);
   return (
     <div className="flex-1 py-10 px-2 md:px-10 h-screen overflow-y-scroll">
       <div className="flex justify-between flex-wrap mb-[100px]">
         <div className="flex items-center gap-5 flex-wrap">
           <img
-            src={currentUser?.photoURL}
+            src={user?.photoURL}
             alt="photoURL"
             className="w-[150px] h-[150px] object-contain rounded-full"
           />
           <div>
-            <h1 className="text-3xl font-bold my-1">
-              {currentUser?.displayName}
-            </h1>
-            <p className="text-gray-500 my-1">@{currentUser?.username}</p>
-            <p className="my-1">BIO : {currentUser?.bio}</p>
+            <h1 className="text-3xl font-bold my-1">{user?.displayName}</h1>
+            <p className="text-gray-500 my-1">@{user?.username}</p>
+            <p className="my-1">{user?.bio}</p>
             <div className="flex items-center gap-2 my-4 flex-wrap">
               <p>
                 <span className="text-[#8585f8]">{posts.length}</span> Posts
               </p>
               <p>
                 <span className="text-[#8585f8]">
-                  {currentUser?.followers.length}{" "}
+                  {user?.followers.length}{" "}
                 </span>{" "}
                 Followers
               </p>
               <p>
                 <span className="text-[#8585f8]">
-                  {currentUser?.following.length}{" "}
+                  {user?.following.length - 1}{" "}
                 </span>{" "}
                 Following
               </p>
@@ -91,19 +112,32 @@ const Profile = () => {
           </div>
         </div>
         <div>
-          <button className="py-2 px-4 bg-[#1f1f21] rounded-md m-4">
-            Edit Profile
-          </button>
+          {currentUser.uid === uid ? (
+            <Link
+              to={"/editProfile"}
+              className="py-2 px-4 bg-[#1f1f21] rounded-md m-4"
+            >
+              Edit Profile
+            </Link>
+          ) : (
+            <Follow uid={uid} />
+          )}
         </div>
       </div>
 
       {/* ajsb */}
       <div className="flex flex-start items-center gap-2">
-        <button className="py-2 w-[180px] bg-[#1f1f21] flex items-center gap-2 justify-center">
+        <button
+          onClick={() => setshowPost(true)}
+          className="py-2 w-[180px] bg-[#1f1f21] flex items-center gap-2 justify-center"
+        >
           <FaImage style={{ fontSize: "1.2rem", color: "#8585f8" }} />
           Posts
         </button>
-        <button className="py-2 w-[180px] bg-[#1f1f21] flex items-center gap-2 justify-center">
+        <button
+          onClick={() => setshowPost(false)}
+          className="py-2 w-[180px] bg-[#1f1f21] flex items-center gap-2 justify-center"
+        >
           <IoMdHeart style={{ fontSize: "1.2rem", color: "#8585f8" }} />
           Liked Post
         </button>
@@ -111,9 +145,11 @@ const Profile = () => {
 
       {/* post page */}
       <div className="grid grid-cols-3 gap-4 py-10">
-        {posts.map((post, index) => (
-          <PostCard fileUrl={post.fileUrl} key={index} />
-        ))}
+        {showPost
+          ? posts.map((post, index) => <PostCard post={post} key={index} />)
+          : likedPosts.map((post, index) => (
+              <PostCard post={post} key={index} />
+            ))}
       </div>
     </div>
   );

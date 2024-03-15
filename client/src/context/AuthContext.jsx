@@ -17,19 +17,13 @@ export const AuthContextProvider = ({ children }) => {
           const unsub = onSnapshot(doc(db, "users", user.uid), (doc) => {
             setCurrentUser(doc.data());
           });
-
-          // const docRef = doc(db, "users", user.uid);
-          // const docSnap = await getDoc(docRef);
-          // if (docSnap.exists()) {
-          //   console.log("Document data:", docSnap.data());
-          //   setCurrentUser(docSnap.data());
-          // }
         } catch (error) {
           console.log(error);
         }
       }
     };
     const unSub = onAuthStateChanged(auth, (user) => {
+      console.log(user);
       getCurrentUser(user);
     });
     return () => {

@@ -23,6 +23,23 @@ const Explore = () => {
     }
   }, [searchVal]);
 
+  const [allPost, setAllPost] = useState([]);
+  useEffect(() => {
+    const getAllPost = async () => {
+      const querySnapshot = await getDocs(collection(db, "posts"));
+      let postArr = [];
+      querySnapshot.forEach((doc) => {
+        postArr.push({ ["id"]: doc.id, ...doc.data() });
+      });
+      postArr.sort(function (a, b) {
+        return a.likeBy.length < b.likeBy.length;
+      });
+      setAllPost(postArr);
+    };
+    getAllPost();
+  }, []);
+  console.log(allPost);
+
   useEffect(() => {
     const getAllUser = async () => {
       const q = collection(db, "users");
@@ -41,7 +58,7 @@ const Explore = () => {
   return (
     <div className="flex-1 h-screen overflow-y-scroll py-10 px-1 md:px-10 ">
       <div>
-        <h1 className="font-bold text-3xl my-2">Search Posts</h1>
+        <h1 className="font-bold text-3xl my-2">Search Users</h1>
         <div className="relative">
           <input
             type="text"
@@ -81,15 +98,9 @@ const Explore = () => {
       </div>
       <h1 className="font-bold text-2xl my-2">Trending Posts</h1>
       <div className="grid grid-cols-3 gap-4">
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
+        {allPost.map((post, index) => (
+          <PostCard post={post} key={index} />
+        ))}
       </div>
     </div>
   );

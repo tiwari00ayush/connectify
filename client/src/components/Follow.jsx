@@ -31,14 +31,14 @@ const Follow = ({ uid }) => {
       {currentUser.following.includes(uid) ? (
         <button
           onClick={handleUnfollow}
-          className="py-2 w-[75%] mx-1 bg-white my-2 rounded-sm text-black"
+          className="py-2 px-2 mx-1 bg-white my-2 rounded-sm text-black"
         >
           Unfollow
         </button>
       ) : (
         <button
           onClick={handleFollow}
-          className="py-2 w-[75%] mx-1 bg-[#8585f8] my-2 rounded-sm text-white"
+          className="py-2 px-4 mx-1 bg-[#8585f8] my-2 rounded-sm text-white"
         >
           Follow
         </button>
