@@ -38,7 +38,6 @@ const Explore = () => {
     };
     getAllPost();
   }, []);
-  console.log(allPost);
 
   useEffect(() => {
     const getAllUser = async () => {

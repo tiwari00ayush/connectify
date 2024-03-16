@@ -38,7 +38,6 @@ const Profile = () => {
   const LikedPostId = currentUser.likedPost;
   useEffect(() => {
     const getLikedPost = async () => {
-      console.log(LikedPostId);
       const LikedPostArr = [];
       for (let i = 0; i < LikedPostId.length; i++) {
         const postId = LikedPostId[i];
@@ -46,7 +45,6 @@ const Profile = () => {
           const docRef = doc(db, "posts", postId);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
-            console.log("Document data:", docSnap.data());
             LikedPostArr.push({ ["id"]: docSnap.id, ...docSnap.data() });
           } else {
             // docSnap.data() will be undefined in this case
@@ -78,7 +76,6 @@ const Profile = () => {
     };
     getPost();
   }, [user]);
-  console.log(likedPosts);
   return (
     <div className="flex-1 py-10 px-2 md:px-10 h-screen overflow-y-scroll">
       <div className="flex justify-between flex-wrap mb-[100px]">

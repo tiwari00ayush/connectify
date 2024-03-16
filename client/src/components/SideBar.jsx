@@ -21,7 +21,7 @@ const SideBar = () => {
     { ["icon"]: IoIosCreate, ["text"]: "Create Post", ["to"]: "/createPost" },
   ];
   return (
-    <div className=" h-screen px-2 relative s shadow-white w-fit md:max-w-[270px] md:w-full">
+    <div className=" h-screen sm:px-2 relative  shadow-white w-fit md:max-w-[270px] md:w-full">
       <Link
         className="flex items-center  mb-6 justify-center md:justify-start translate-x-[-10px] "
         to={"/"}

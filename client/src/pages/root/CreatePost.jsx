@@ -15,7 +15,6 @@ const CreatePost = () => {
   const [location, setLocation] = useState("");
   const [tags, setTags] = useState([]);
 
-  console.log(file);
   const handleCreate = async () => {
     setLoading(true);
     // 1. upload the file and get the url
@@ -58,7 +57,6 @@ const CreatePost = () => {
               timestamp,
             });
 
-            console.log("docRef", docRef);
             setLoading(false);
             navigate(`/profile/${currentUser.uid}`);
           } catch (e) {
@@ -69,7 +67,6 @@ const CreatePost = () => {
       }
     );
   };
-  console.log(tags);
   return (
     <>
       {loading ? (

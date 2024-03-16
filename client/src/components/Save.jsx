@@ -18,7 +18,6 @@ const Save = ({ postId }) => {
       savedPost: arrayRemove(postId),
     });
   };
-  console.log(currentUser.savedPost.includes(postId));
   return (
     <div>
       {currentUser.savedPost.includes(postId) ? (

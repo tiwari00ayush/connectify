@@ -26,7 +26,6 @@ const EditProfile = () => {
     const username = e.target[2].value;
     const email = e.target[3].value;
     const bio = e.target[4].value;
-    console.log(file);
     // upload file
     if (file !== undefined) {
       const storageRef = ref(storage, `images/${currentUser?.username}`);

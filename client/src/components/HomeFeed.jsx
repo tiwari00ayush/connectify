@@ -21,7 +21,6 @@ const HomeFeed = () => {
           const querySnapshot = await getDocs(q);
           querySnapshot.forEach((doc) => {
             postArr.push({ ["id"]: doc.id, ...doc.data() });
-            console.log(doc.id, " => ", doc.data());
           });
         } catch (error) {
           console.log(error);
@@ -34,9 +33,8 @@ const HomeFeed = () => {
     };
     getAllPost();
   }, []);
-  console.log(allPost);
   return (
-    <div className="flex-[2] h-screen overflow-y-scroll py-6 px-5 ">
+    <div className="flex-[2] h-screen overflow-y-scroll py-6 sm:px-5 ">
       <h1 className="text-2xl font-bold ">Home Feed</h1>
 
       {currentUser.following.length === 1 ? (

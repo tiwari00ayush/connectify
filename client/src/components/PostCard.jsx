@@ -3,8 +3,6 @@ import React, { useState } from "react";
 import Like from "./Like";
 import Save from "./Save";
 const PostCard = ({ post }) => {
-  console.log(post.fileUrl);
-
   return (
     <div className="relative rounded-lg hover:scale-105 cursor-pointer duration-150 ease-in-out">
       <img

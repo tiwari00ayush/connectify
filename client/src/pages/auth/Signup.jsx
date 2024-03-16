@@ -142,7 +142,6 @@ const Signup = () => {
           likedPost: [], // post liked by this user
           savedPost: [], // post saved by this user
         });
-        console.log("docRef", docRef);
         sendEmailVerification(auth.currentUser).then(() => {
           console.log("email verification sent");
         });
@@ -156,7 +155,6 @@ const Signup = () => {
       console.log(error.message);
     }
   };
-  console.log(errors["displayName"]);
   return (
     <form
       className="flex flex-col gap-1 w-[100%] max-w-[400px] text-white px-4"
