@@ -1,13 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { CiSearch } from "react-icons/ci";
 import PostCard from "../../components/PostCard";
-import { collection, getDocs } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  startAfter,
+} from "firebase/firestore";
 import { db } from "../../utils";
 import { Link } from "react-router-dom";
+import InfiniteScroll from "react-infinite-scroll-component";
+import Loader from "../../components/Loader";
 const Explore = () => {
   const [allUser, setAllUser] = useState([]);
   const [searchVal, setSearchVal] = useState("");
   const [searchResult, setSearchResult] = useState([]);
+
   useEffect(() => {
     if (searchVal === "") {
       setSearchResult([]);
@@ -24,17 +34,53 @@ const Explore = () => {
   }, [searchVal]);
 
   const [allPost, setAllPost] = useState([]);
+  const [lastPost, setLastPost] = useState(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  const getNextPost = async () => {
+    if (loading) return;
+    setLoading(true);
+    const q = query(
+      collection(db, "posts"),
+      limit(3),
+      orderBy("timestamp", "desc"),
+      startAfter(lastPost.timestamp)
+    );
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) setHasMore(false);
+    let postArr = [];
+    querySnapshot.forEach((doc) => {
+      postArr.push({ ["id"]: doc.id, ...doc.data() });
+    });
+    setLastPost(postArr[postArr.length - 1]);
+    postArr.sort(function (a, b) {
+      return a.likeBy.length < b.likeBy.length;
+    });
+    setAllPost((prev) => [...prev, ...postArr]);
+    setLoading(false);
+  };
   useEffect(() => {
     const getAllPost = async () => {
-      const querySnapshot = await getDocs(collection(db, "posts"));
+      setLoading(true);
+      setHasMore(true);
+      const q = query(
+        collection(db, "posts"),
+        limit(6),
+        orderBy("timestamp", "desc")
+      );
+      const querySnapshot = await getDocs(q);
       let postArr = [];
       querySnapshot.forEach((doc) => {
         postArr.push({ ["id"]: doc.id, ...doc.data() });
       });
+      setLastPost(postArr[postArr.length - 1]);
       postArr.sort(function (a, b) {
         return a.likeBy.length < b.likeBy.length;
       });
+
       setAllPost(postArr);
+      setLoading(false);
     };
     getAllPost();
   }, []);
@@ -54,8 +100,21 @@ const Explore = () => {
     };
     getAllUser();
   }, []);
+  const handleScroll = (event) => {
+    if (!hasMore) return;
+    const element = event.target;
+    // Check if the user has scrolled to the bottom of the posts section
+    if (element.scrollHeight - element.scrollTop === element.clientHeight) {
+      // If so, trigger an action (e.g., load more posts)
+      getNextPost();
+    }
+  };
+
   return (
-    <div className="flex-1 h-screen overflow-y-scroll py-10 px-1 md:px-10 ">
+    <div
+      className="flex-1 h-screen overflow-y-scroll py-10 px-1 md:px-10 "
+      onScroll={handleScroll}
+    >
       <div>
         <h1 className="font-bold text-3xl my-2">Search Users</h1>
         <div className="relative">
@@ -101,7 +160,14 @@ const Explore = () => {
           <PostCard post={post} key={index} />
         ))}
       </div>
+      {loading && (
+        <div className="py-2">
+          <Loader />
+        </div>
+      )}
+      {!hasMore && <p className="text-center text-2xl py-2">No more posts</p>}
     </div>
+    // </InfiniteScroll>
   );
 };
 

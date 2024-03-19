@@ -131,22 +131,22 @@ const Profile = () => {
           <FaImage style={{ fontSize: "1.2rem", color: "#8585f8" }} />
           Posts
         </button>
-        <button
-          onClick={() => setshowPost(false)}
-          className="py-2 w-[180px] bg-[#1f1f21] flex items-center gap-2 justify-center"
-        >
-          <IoMdHeart style={{ fontSize: "1.2rem", color: "#8585f8" }} />
-          Liked Post
-        </button>
+        {currentUser.uid === uid && (
+          <button
+            onClick={() => setshowPost(false)}
+            className="py-2 w-[180px] bg-[#1f1f21] flex items-center gap-2 justify-center"
+          >
+            <IoMdHeart style={{ fontSize: "1.2rem", color: "#8585f8" }} />
+            Liked Post
+          </button>
+        )}
       </div>
 
       {/* post page */}
       <div className="grid grid-cols-3 gap-4 py-10">
         {showPost
-          ? posts.map((post, index) => <PostCard post={post} key={index} />)
-          : likedPosts.map((post, index) => (
-              <PostCard post={post} key={index} />
-            ))}
+          ? posts.map((post) => <PostCard post={post} key={post.id} />)
+          : likedPosts.map((post) => <PostCard post={post} key={post.id} />)}
       </div>
     </div>
   );

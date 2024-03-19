@@ -13,8 +13,6 @@ const TopCreators = () => {
       const querySnapshot = await getDocs(q);
       let temp = [];
       querySnapshot.forEach((doc) => {
-        // doc.data() is never undefined for query doc snapshots
-
         temp.push(doc.data());
       });
       temp.sort(function (a, b) {

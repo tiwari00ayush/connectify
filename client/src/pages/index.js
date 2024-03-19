@@ -9,6 +9,7 @@ import Profile from "./root/Profile";
 import EditProfile from "./root/EditProfile";
 import SavedPost from "./root/SavedPost";
 import People from "./root/People";
+import Post from "./root/Post";
 export {
   Home,
   Login,
@@ -21,4 +22,5 @@ export {
   EditProfile,
   SavedPost,
   People,
+  Post,
 };

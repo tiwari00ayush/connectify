@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { IoIosHeartEmpty } from "react-icons/io";
-import { IoMdHeart } from "react-icons/io";
-import { FaBookmark } from "react-icons/fa";
-import { FaRegBookmark } from "react-icons/fa";
 import { db } from "../utils";
 import { doc, getDoc } from "firebase/firestore";
 import { Link } from "react-router-dom";
 import Like from "./Like";
 import Save from "./Save";
 const HomePost = ({ post }) => {
-  const [isLiked, setIsLiked] = useState(false);
-  const [isBookMarked, setIsBookMarked] = useState(false);
+  if (post === null) return;
   const [owner, setOwner] = useState(null);
-  const date = new Date(post?.timestamp);
+  const date = new Date(post?.timestamp.seconds * 1000);
   useEffect(() => {
     const getOwner = async () => {
       const docRef = doc(db, "users", post?.owner);
@@ -57,10 +52,10 @@ const HomePost = ({ post }) => {
       <img src={post?.fileUrl} alt="post photo" className="rounded-md my-2" />
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <Like postId={post.id} />
-          {post.likeBy.length}
+          <Like postId={post?.id} />
+          {post?.likeBy.length}
         </div>
-        <Save postId={post.id} />
+        <Save postId={post?.id} />
       </div>
     </div>
   );

@@ -4,7 +4,9 @@ import TopCreators from "../../components/TopCreators";
 const Home = () => {
   return (
     <div className="flex-1 flex">
-      <HomeFeed />
+      <div className="flex-[2]">
+        <HomeFeed />
+      </div>
       <TopCreators />
     </div>
   );

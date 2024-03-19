@@ -46,6 +46,7 @@ const CreatePost = () => {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+          const time = new Date(timestamp);
           try {
             const docRef = await addDoc(collection(db, "posts"), {
               caption,
@@ -54,7 +55,7 @@ const CreatePost = () => {
               location,
               tags,
               ["owner"]: currentUser.uid,
-              timestamp,
+              ["timestamp"]: time,
             });
 
             setLoading(false);
